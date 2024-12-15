@@ -3,6 +3,7 @@
 from tensorflow.keras.models import Model as KerasModel
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv2D, MaxPooling2D, BatchNormalization, Dropout, Concatenate, LeakyReLU
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import Activation  # Activation 추가
 
 IMGWIDTH = 256
 
@@ -34,26 +35,30 @@ class Meso4(Classifier):
     def init_model(self): 
         x = Input(shape=(IMGWIDTH, IMGWIDTH, 3))
         
-        x1 = Conv2D(8, (3, 3), padding='same', activation='relu')(x)
+        x1 = Conv2D(16, (3, 3), padding='same')(x)
         x1 = BatchNormalization()(x1)
+        x1 = Activation('swish')(x1)
         x1 = MaxPooling2D(pool_size=(2, 2), padding='same')(x1)
         
-        x2 = Conv2D(8, (5, 5), padding='same', activation='relu')(x1)
+        x2 = Conv2D(32, (5, 5), padding='same')(x1)
         x2 = BatchNormalization()(x2)
+        x2 = Activation('swish')(x2)
         x2 = MaxPooling2D(pool_size=(2, 2), padding='same')(x2)
         
-        x3 = Conv2D(16, (5, 5), padding='same', activation='relu')(x2)
+        x3 = Conv2D(64, (5, 5), padding='same')(x2)
         x3 = BatchNormalization()(x3)
+        x3 = Activation('swish')(x3)
         x3 = MaxPooling2D(pool_size=(2, 2), padding='same')(x3)
         
-        x4 = Conv2D(16, (5, 5), padding='same', activation='relu')(x3)
+        x4 = Conv2D(128, (5, 5), padding='same')(x3)
         x4 = BatchNormalization()(x4)
+        x4 = Activation('swish')(x4)
         x4 = MaxPooling2D(pool_size=(4, 4), padding='same')(x4)
         
         y = Flatten()(x4)
-        y = Dropout(0.5)(y)
-        y = Dense(16)(y)
-        y = LeakyReLU(alpha=0.1)(y)  # 여기서 alpha를 사용하도록 수정했습니다
+        y = Dropout(0.3)(y)
+        y = Dense(32)(y)
+        y = LeakyReLU(alpha=0.1)(y)
         y = Dropout(0.5)(y)
         y = Dense(1, activation='sigmoid')(y)
 
